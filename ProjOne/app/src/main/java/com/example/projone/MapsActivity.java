@@ -2,9 +2,17 @@ package com.example.projone;
 
 import androidx.fragment.app.FragmentActivity;
 
+import android.content.Context;
 import android.content.Intent;
+import android.graphics.Color;
+import android.graphics.Typeface;
 import android.os.Bundle;
+import android.view.Gravity;
+import android.view.View;
+import android.widget.LinearLayout;
+import android.widget.TextView;
 
+import com.ford.cpp.android.contract.ChargingStationContract;
 import com.ford.cpp.android.contract.ChargingStationList;
 import com.google.android.gms.maps.CameraUpdateFactory;
 import com.google.android.gms.maps.GoogleMap;
@@ -15,6 +23,9 @@ import com.google.android.gms.maps.model.CameraPosition;
 import com.google.android.gms.maps.model.LatLng;
 import com.google.android.gms.maps.model.Marker;
 import com.google.android.gms.maps.model.MarkerOptions;
+
+import java.util.ArrayList;
+import java.util.List;
 
 public class MapsActivity extends FragmentActivity implements OnMapReadyCallback {
 
@@ -43,42 +54,88 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
     @Override
     public void onMapReady(GoogleMap googleMap) {
         mMap = googleMap;
+     //   TextView view = new TextView();
 
+        List<MarkerOptions> options = new ArrayList<>();
         Intent intent = getIntent();
         ChargingStationList list  = (ChargingStationList)intent.getSerializableExtra(MainActivity.EXTRA_MESSAGE);
         String name = list.getStationList().get(0).getName();
         // Add a marker in Sydney and move the camera
       //  LatLng dearborn = new LatLng()
        // LatLng taylor = new LatLng(42.2409, 83.2697);
-        LatLng allenpark = new LatLng(42.267780,  -83.242570);
+        List<ChargingStationContract> innerList = list.getStationList();
+        float color = 0;
+
+        for (int i =0; i<innerList.size();i++)
+        {
+            ChargingStationContract contract = innerList.get(i);
+
+            MarkerOptions option = new MarkerOptions();
+            option.position(new LatLng(contract.getLatitude(),contract.getLongitude()));
+            option.title(contract.getName());
+            String snippetText = "";
+            if(contract.isStatus())
+            {
+                color = BitmapDescriptorFactory.HUE_GREEN;
+                snippetText="Charger is available";
+
+            }
+            else
+            {
+                color = BitmapDescriptorFactory.HUE_RED;
+                snippetText="Charger is in Use";
+            }
+            option.icon(BitmapDescriptorFactory.defaultMarker(color));
+            mMap.addMarker(option);
+            option.snippet(snippetText);
+            options.add(option);
+            mMap.setInfoWindowAdapter(new GoogleMap.InfoWindowAdapter() {
+                @Override
+                public View getInfoWindow(Marker arg0) {
+                    return null;
+                }
+                @Override
+                public View getInfoContents(Marker marker) {
+                    Context context = getApplicationContext(); //or getActivity(), YourActivity.this, etc.
+                    LinearLayout info = new LinearLayout(context);
+                    info.setOrientation(LinearLayout.VERTICAL);
+                    TextView title = new TextView(context);
+                    title.setTextColor(Color.BLACK);
+                    title.setGravity(Gravity.CENTER);
+                    title.setTypeface(null, Typeface.BOLD);
+                    title.setText(marker.getTitle());
+                    TextView snippet = new TextView(context);
+                    snippet.setTextColor(Color.GRAY);
+                    snippet.setText("Charger in Use");
+                    info.addView(title);
+                    info.addView(snippet);
+                    return info;
+                }
+            });
+
+        }
+       // LatLng allenpark = new LatLng(42.267780,  -83.242570);
 
        // mMap.addMarker(new MarkerOptions().position(dearborn).title("Dearborn"));
        // mMap.addMarker(new MarkerOptions().position(taylor).title("Taylor"));
       //  mMap.addMarker(new MarkerOptions().position(allenpark).title("Allen Park"));
     //    mMap.setMaxZoomPreference(20);
-        float color = 0;
-        if(list.getStationList().get(0).isStatus())
-        {
-            color = BitmapDescriptorFactory.HUE_GREEN;
-        }
-        else
-        {
-           color = BitmapDescriptorFactory.HUE_VIOLET;
-        }
 
-        mMap.addMarker(new MarkerOptions()
-                .position(allenpark)
-                .title(name)
-                .snippet("Charging Station is currently in use. \r \n Percent Charged: 45% \r \n Time Remaining: 30 min ")
-        .icon(BitmapDescriptorFactory.defaultMarker(color)));
 
-        CameraPosition cameraPosition = new CameraPosition.Builder()
-                .target(allenpark)
-                .zoom(16).build();
-        //Zoom in and animate the camera.
+//        mMap.addMarker(new MarkerOptions()
+//                .position(allenpark)
+//                .title(name)
+//                .snippet("Charging Station is currently in use. \r \n Percent Charged: 45% \r \n Time Remaining: 30 min ")
+//        .icon(BitmapDescriptorFactory.defaultMarker(color)));
+
+      CameraPosition cameraPosition = new CameraPosition.Builder()
+                .target(options.get(0).getPosition())
+               .zoom(12).build();
+//        //Zoom in and animate the camera.
         mMap.animateCamera(CameraUpdateFactory.newCameraPosition(cameraPosition));
 
 
        //mMap.moveCamera(CameraUpdateFactory.newLatLng(allenpark));
     }
+
 }

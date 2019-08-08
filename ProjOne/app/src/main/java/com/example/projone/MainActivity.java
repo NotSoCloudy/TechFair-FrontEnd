@@ -45,7 +45,7 @@ public class MainActivity extends AppCompatActivity {
 
         // Instantiate the RequestQueue.
         RequestQueue queue = Volley.newRequestQueue(this);
-        String url ="http://19.49.55.213:8090/station";
+        String url ="http://19.49.54.78:8090/station";
        // String url ="http://192.168.0.14:9000/location";
 
 
