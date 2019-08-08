@@ -29,11 +29,15 @@
         -->
         <meta-data
             android:name="com.google.android.geo.API_KEY"
-            android:value="AIzaSyCI5WCcGFTP9oGXTLfZDMZW3xg2KZ1Niy4" />
+            android:value="@string/google_maps_key" />
 
         <activity
+            android:name=".HeatMapActivity"
+            android:label="@string/title_activity_heat_map">
+        </activity>
+        <activity
             android:name=".MapsActivity"
-            android:label="@string/title_activity_maps"></activity>
+            android:label="@string/title_activity_maps" />
 
         <uses-library
             android:name="org.apache.http.legacy"

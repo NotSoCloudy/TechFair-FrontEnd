@@ -1,6 +1,8 @@
 <resources>
     <string name="app_name">ProjOne</string>
     <string name="edit_message">Enter a message</string>
-    <string name="button_send">Send</string>
+    <string name="btn_marker">Markers</string>
+    <string name="btn_heatmap">HeatMap</string>
     <string name="title_activity_maps">Map</string>
+    <string name="title_activity_heat_map">Charger HeatMap</string>
 </resources>

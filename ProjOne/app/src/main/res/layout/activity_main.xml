@@ -6,32 +6,23 @@
     android:layout_height="match_parent"
     tools:context=".MainActivity">
 
-    <EditText
-        android:id="@+id/editText"
-        android:layout_width="0dp"
-        android:layout_height="wrap_content"
-        android:layout_marginStart="16dp"
-        android:layout_marginTop="16dp"
-        android:ems="10"
-        android:hint="@string/edit_message"
-        android:inputType="textPersonName"
-        android:text="@string/edit_message"
-        app:layout_constraintEnd_toStartOf="@+id/button2"
-        app:layout_constraintHorizontal_bias="0.5"
-        app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toTopOf="parent" />
-
     <Button
-        android:id="@+id/button2"
+        android:id="@+id/btn_heatmap"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:layout_marginStart="16dp"
-        android:layout_marginEnd="16dp"
-        android:onClick="sendMessage"
-        android:text="@string/button_send"
-        app:layout_constraintBaseline_toBaselineOf="@+id/editText"
+        android:layout_marginEnd="96dp"
+        android:onClick="sendMessageHeatMap"
+        android:text="HeatMap"
         app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintHorizontal_bias="0.5"
-        app:layout_constraintStart_toEndOf="@+id/editText" />
+        tools:layout_editor_absoluteY="31dp" />
+
+    <Button
+        android:id="@+id/btn_marker"
+        android:layout_width="0dp"
+        android:layout_height="wrap_content"
+        android:onClick="sendMessage"
+        android:text="Markers"
+        tools:layout_editor_absoluteX="82dp"
+        tools:layout_editor_absoluteY="31dp" />
 
 </androidx.constraintlayout.widget.ConstraintLayout>

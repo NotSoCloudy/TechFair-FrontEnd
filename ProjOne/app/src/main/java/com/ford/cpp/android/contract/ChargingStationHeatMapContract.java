@@ -2,17 +2,28 @@ package com.ford.cpp.android.contract;
 
 import java.io.Serializable;
 
-public class ChargingStationContract implements Serializable{
+public class ChargingStationHeatMapContract implements Serializable{
 
-    public long getUsageCounter() {
-        return usageCounter;
+
+    private String name;
+
+    private Long id;
+
+    private boolean status;
+
+    private double latitude;
+
+    private double longitude;
+
+    public double getWeight() {
+        return weight;
     }
 
-    public void setUsageCounter(long usageCounter) {
-        this.usageCounter = usageCounter;
+    public void setWeight(double weight) {
+        this.weight = weight;
     }
 
-    private long usageCounter;
+    private double weight;
 
     public String getName() {
         return name;
@@ -54,13 +65,5 @@ public class ChargingStationContract implements Serializable{
         this.longitude = longitude;
     }
 
-    private String name;
 
-    private Long id;
-
-    private boolean status;
-
-    private double latitude;
-
-    private double longitude;
 }

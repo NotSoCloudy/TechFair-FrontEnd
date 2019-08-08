@@ -15,6 +15,7 @@ import com.android.volley.toolbox.JsonArrayRequest;
 import com.android.volley.toolbox.StringRequest;
 import com.android.volley.toolbox.Volley;
 import com.ford.cpp.android.contract.ChargingStationContract;
+import com.ford.cpp.android.contract.ChargingStationHeatMapContract;
 import com.ford.cpp.android.contract.ChargingStationList;
 
 import java.util.List;
@@ -26,6 +27,8 @@ import org.json.JSONObject;
 public class MainActivity extends AppCompatActivity {
 
     public static final String EXTRA_MESSAGE = "com.example.myfirstapp.MESSAGE";
+    public static final String EXTRA_MESSAGE_HEATMAP = "com.example.myfirstapp.MESSAGE_HEATMAP";
+
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -38,14 +41,15 @@ public class MainActivity extends AppCompatActivity {
 
 
         final Intent intent = new Intent(this, MapsActivity.class);
-        final EditText editText = (EditText) findViewById(R.id.editText);
-        String message = editText.getText().toString();
+      //  final EditText editText = (EditText) findViewById(R.id.editText);
+      //  String message = editText.getText().toString();
        // intent.putExtra(EXTRA_MESSAGE, message);
      //   startActivity(intent);
 
         // Instantiate the RequestQueue.
         RequestQueue queue = Volley.newRequestQueue(this);
-        String url ="http://19.49.54.78:8090/station";
+      //  String url ="http://19.49.54.78:8090/station";
+        String url= "https://findmycharger.cfapps.io/station";
        // String url ="http://192.168.0.14:9000/location";
 
 
@@ -68,6 +72,7 @@ public class MainActivity extends AppCompatActivity {
                                 station.setLatitude(json.getDouble("latitude"));
                                 station.setLongitude(json.getDouble("longitude"));
                                 station.setStatus(json.getBoolean("status"));
+                                station.setUsageCounter(json.getLong("usageCounter"));
                                 list.add(station);
 
                             }
@@ -80,7 +85,7 @@ public class MainActivity extends AppCompatActivity {
                         ChargingStationContract station = new ChargingStationContract();
                         // Display the first 500 characters of the response string.
                        // textView.setText("Response is: "+ response.substring(0,500));
-                        String message = editText.getText().toString();
+                      //  String message = editText.getText().toString();
                         intent.putExtra(EXTRA_MESSAGE,contractList);
                         startActivity(intent);
 
@@ -89,7 +94,71 @@ public class MainActivity extends AppCompatActivity {
                 }, new Response.ErrorListener() {
             @Override
             public void onErrorResponse(VolleyError error) {
-                editText.setText(error.getMessage());
+                //editText.setText(error.getMessage());
+            }
+        });
+
+// Add the request to the RequestQueue.
+        queue.add(stringRequest);
+    }
+
+
+    public void sendMessageHeatMap(View view) {
+
+
+        final Intent intent = new Intent(this, HeatMapActivity.class);
+      //  final EditText editText = (EditText) findViewById(R.id.editText);
+      //  String message = editText.getText().toString();
+        // intent.putExtra(EXTRA_MESSAGE, message);
+        //   startActivity(intent);
+
+        // Instantiate the RequestQueue.
+        RequestQueue queue = Volley.newRequestQueue(this);
+        //  String url ="http://19.49.54.78:8090/station";
+        String url= "https://findmycharger.cfapps.io/station";
+        // String url ="http://192.168.0.14:9000/location";
+
+         JsonArrayRequest stringRequest = new JsonArrayRequest(Request.Method.GET, url,
+                new Response.Listener<JSONArray>() {
+                    @Override
+                    public void onResponse(JSONArray response) {
+                        ChargingStationList contractList = new ChargingStationList();
+                        List<ChargingStationHeatMapContract> list = new ArrayList<>();
+
+                        try {
+                            for (int i = 0; i < response.length(); i++) {
+                                JSONObject json = response.getJSONObject(i);
+                                ChargingStationHeatMapContract station = new ChargingStationHeatMapContract();
+                                station.setId(json.getLong("id"));
+                                station.setName(json.getString("name"));
+
+                                station.setLatitude(json.getDouble("latitude"));
+                                station.setLongitude(json.getDouble("longitude"));
+                                station.setStatus(json.getBoolean("status"));
+                              //  station.setUsage
+                                list.add(station);
+                                station.setWeight((i+1)*8);
+
+                            }
+                            contractList.setHeatMapStationList(list);
+                        }
+                        catch(Exception e)
+                        {
+
+                        }
+                        ChargingStationContract station = new ChargingStationContract();
+                        // Display the first 500 characters of the response string.
+                        // textView.setText("Response is: "+ response.substring(0,500));
+                       // String message = editText.getText().toString();
+                        intent.putExtra(EXTRA_MESSAGE_HEATMAP,contractList);
+                        startActivity(intent);
+
+
+                    }
+                }, new Response.ErrorListener() {
+            @Override
+            public void onErrorResponse(VolleyError error) {
+               // editText.setText(error.getMessage());
             }
         });
 
