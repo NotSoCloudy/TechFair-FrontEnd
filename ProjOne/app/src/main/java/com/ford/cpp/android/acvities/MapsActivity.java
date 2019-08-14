@@ -1,4 +1,4 @@
-package com.example.projone;
+package com.ford.cpp.android.acvities;
 
 import androidx.fragment.app.FragmentActivity;
 
@@ -7,14 +7,13 @@ import android.content.Intent;
 import android.graphics.Color;
 import android.graphics.Typeface;
 import android.os.Bundle;
-import android.util.Log;
 import android.view.Gravity;
 import android.view.View;
 import android.widget.LinearLayout;
 import android.widget.TextView;
 
+import com.example.projone.R;
 import com.ford.cpp.android.contract.ChargingStationContract;
-import com.ford.cpp.android.contract.ChargingStationHeatMapContract;
 import com.ford.cpp.android.contract.ChargingStationList;
 import com.google.android.gms.maps.CameraUpdateFactory;
 import com.google.android.gms.maps.GoogleMap;
