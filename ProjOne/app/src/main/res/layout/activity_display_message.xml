@@ -4,7 +4,7 @@
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    tools:context="com.ford.cpp.android.acvities.DisplayMessageActivity">
+    tools:context="com.ford.cpp.android.activities.DisplayMessageActivity">
 
     <androidx.constraintlayout.widget.Barrier
         android:id="@+id/barrier"

@@ -5,4 +5,12 @@
     <string name="btn_heatmap">HeatMap</string>
     <string name="title_activity_maps">Map</string>
     <string name="title_activity_heat_map">Charger HeatMap</string>
+    <string name="title_activity_landing_screen">LandingScreen</string>
+    <string name="title_activity_landing_page">LandingPageActivity</string>
+    <string-array name="radius_values">
+        <item>Taylor</item>
+        <item>Dearborn</item>
+        <item>All</item>
+    </string-array>
+    <string name="city_list">Select City</string>
 </resources>

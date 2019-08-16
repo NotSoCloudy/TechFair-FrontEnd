@@ -1,4 +1,4 @@
-package com.ford.cpp.android.acvities;
+package com.ford.cpp.android.activities;
 
 import androidx.fragment.app.FragmentActivity;
 
@@ -62,7 +62,11 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
 
         List<MarkerOptions> options = new ArrayList<>();
         Intent intent = getIntent();
-        ChargingStationList list  = (ChargingStationList)intent.getSerializableExtra(MainActivity.EXTRA_MESSAGE);
+     //   ChargingStationList list  = (ChargingStationList)intent.getSerializableExtra(MainActivity.EXTRA_MESSAGE);
+
+        ChargingStationList list  = (ChargingStationList)intent.getSerializableExtra(LandingPageActivity.LANDING_EXTRA_MESSAGE);
+
+
         String name = list.getStationList().get(0).getName();
         // Add a marker in Sydney and move the camera
       //  LatLng dearborn = new LatLng()

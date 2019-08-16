@@ -1,4 +1,4 @@
-package com.ford.cpp.android.acvities;
+package com.ford.cpp.android.activities;
 
 import androidx.appcompat.app.AppCompatActivity;
 
