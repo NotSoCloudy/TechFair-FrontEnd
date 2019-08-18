@@ -4,7 +4,7 @@
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    android:contentDescription="ev image"
+    android:contentDescription="@string/ev_image_description"
     app:layout_behavior="@string/appbar_scrolling_view_behavior"
     tools:context="com.ford.cpp.android.activities.LandingPageActivity"
     tools:layout_editor_absoluteY="56dp"
@@ -15,11 +15,27 @@
         android:layout_width="wrap_content"
         android:layout_height="0dp"
         android:layout_marginBottom="76dp"
-        android:text="Find EV Charger"
+        android:contentDescription="@string/find_ev_charger"
+        android:text="@string/find_ev_charger"
         android:textSize="24sp"
         app:layout_constraintBottom_toTopOf="@+id/imageView"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent" />
+
+    <TextView
+        android:id="@+id/no_charger_error"
+        android:layout_width="wrap_content"
+        android:layout_height="0dp"
+        android:layout_marginStart="8dp"
+        android:layout_marginEnd="24dp"
+        android:text="@string/no_charger_error"
+        android:textColor="#F44336"
+        android:textSize="20sp"
+        android:visibility="invisible"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintHorizontal_bias="1.0"
+        app:layout_constraintStart_toStartOf="parent"
+        tools:layout_editor_absoluteY="16dp" />
 
     <ImageView
         android:id="@+id/imageView"
@@ -27,6 +43,7 @@
         android:layout_height="217dp"
         android:layout_marginTop="168dp"
         android:layout_marginEnd="36dp"
+        android:contentDescription="@string/ev_image_description"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintTop_toTopOf="parent"
         app:srcCompat="@drawable/pic_ev" />
@@ -58,7 +75,7 @@
                 app:layout_constraintTop_toTopOf="parent" />
 
             <Spinner
-                android:id="@+id/spinner3"
+                android:id="@+id/city_list_id"
                 android:layout_width="109dp"
                 android:layout_height="43dp"
                 android:layout_marginStart="40dp"
@@ -74,9 +91,9 @@
                 android:layout_height="35dp"
                 android:layout_marginStart="44dp"
                 android:onClick="sendMessage"
-                android:text="Find"
+                android:text="@string/btn_find"
                 app:layout_constraintBottom_toBottomOf="parent"
-                app:layout_constraintStart_toEndOf="@+id/spinner3"
+                app:layout_constraintStart_toEndOf="@+id/city_list_id"
                 app:layout_constraintTop_toTopOf="parent"
                 app:layout_constraintVertical_bias="0.504" />
         </androidx.constraintlayout.widget.ConstraintLayout>

@@ -1,6 +1,7 @@
 package com.ford.cpp.android.activities;
 
 import android.content.Intent;
+import android.opengl.Visibility;
 import android.os.Bundle;
 
 import com.android.volley.Request;
@@ -19,6 +20,8 @@ import androidx.appcompat.app.AppCompatActivity;
 import androidx.appcompat.widget.Toolbar;
 
 import android.view.View;
+import android.widget.Spinner;
+import android.widget.TextView;
 
 import com.example.projone.R;
 
@@ -31,6 +34,7 @@ import java.util.List;
 public class LandingPageActivity extends AppCompatActivity {
 
     public static final String LANDING_EXTRA_MESSAGE = "com.ford.cpp.android.landing.MESSAGE";
+    TextView view;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -49,16 +53,26 @@ public class LandingPageActivity extends AppCompatActivity {
 
     public void sendLocationIntentMessage() {
         final Intent intent = new Intent(this, MapsActivity.class);
+        Spinner spinner = findViewById(R.id.city_list_id);
+        String value = (String) spinner.getSelectedItem();
+
+
+
         RequestQueue queue = Volley.newRequestQueue(this);
         //  String url ="http://19.49.54.78:8090/station";
         // String url= "https://findmycharger.cfapps.io/station";
-        String url ="http://192.168.225.53:8090/station";
+        String url ="http://192.168.225.53:8090/station"+"/"+value;
 
 // Request a string response from the provided URL.
         JsonArrayRequest stringRequest = new JsonArrayRequest(Request.Method.GET, url,
                 new Response.Listener<JSONArray>() {
                     @Override
                     public void onResponse(JSONArray response) {
+                        if(response== null || response.length()==0)
+                        {
+                            findViewById(R.id.no_charger_error).setVisibility(View.VISIBLE);
+                            return;
+                        }
                         ChargingStationList contractList = new ChargingStationList();
                         List<ChargingStationContract> list = new ArrayList<>();
 
@@ -92,6 +106,7 @@ public class LandingPageActivity extends AppCompatActivity {
             public void onErrorResponse(VolleyError error) {
                 //editText.setText(error.getMessage());
                 //  TextView view = new TextView()
+                findViewById(R.id.no_charger_error).setVisibility(View.VISIBLE);
 
             }
         });
