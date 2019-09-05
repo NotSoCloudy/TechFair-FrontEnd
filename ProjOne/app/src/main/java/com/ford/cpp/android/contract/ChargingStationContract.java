@@ -4,6 +4,16 @@ import java.io.Serializable;
 
 public class ChargingStationContract implements Serializable{
 
+    private String name;
+    private Long id;
+    private boolean status;
+    private double latitude;
+    private double longitude;
+    private long usageCounter;
+    private String city;
+    private String vin;
+    private double chargePct;
+
     public long getUsageCounter() {
         return usageCounter;
     }
@@ -12,7 +22,6 @@ public class ChargingStationContract implements Serializable{
         this.usageCounter = usageCounter;
     }
 
-    private long usageCounter;
 
     public String getName() {
         return name;
@@ -54,13 +63,15 @@ public class ChargingStationContract implements Serializable{
         this.longitude = longitude;
     }
 
-    private String name;
+    public String getCity() {    return city;   }
 
-    private Long id;
+    public void setCity(String city) {    this.city = city;   }
 
-    private boolean status;
+    public String getVin() {   return vin;  }
 
-    private double latitude;
+    public void setVin(String vin) {  this.vin = vin;  }
 
-    private double longitude;
+    public double getChargePct() {   return chargePct;  }
+
+    public void setChargePct(double chargePct) {  this.chargePct = chargePct;  }
 }

@@ -7,7 +7,7 @@
     <string name="title_activity_maps">Map</string>
     <string name="title_activity_heat_map">Charger HeatMap</string>
     <string name="title_activity_landing_screen">LandingScreen</string>
-    <string name="title_activity_landing_page">LandingPageActivity</string>
+    <string name="title_activity_landing_page">Find EV Charger</string>
     <string name="ev_image_description">EV Image</string>
     <string name="find_ev_charger">Find EV Charger</string>
     <string name="no_charger_error">No Chargers found.Try a different search</string>

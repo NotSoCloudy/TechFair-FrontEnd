@@ -1,7 +1,12 @@
 package com.ford.cpp.android.activities;
 
+import android.Manifest;
+import android.annotation.TargetApi;
 import android.content.Intent;
+import android.content.pm.PackageManager;
+import android.location.Location;
 import android.opengl.Visibility;
+import android.os.Build;
 import android.os.Bundle;
 
 import com.android.volley.Request;
@@ -12,10 +17,14 @@ import com.android.volley.toolbox.JsonArrayRequest;
 import com.android.volley.toolbox.Volley;
 import com.ford.cpp.android.contract.ChargingStationContract;
 import com.ford.cpp.android.contract.ChargingStationList;
+import com.google.android.gms.location.FusedLocationProviderClient;
 import com.google.android.gms.location.LocationRequest;
+import com.google.android.gms.location.LocationServices;
+import com.google.android.gms.tasks.OnSuccessListener;
 import com.google.android.material.floatingactionbutton.FloatingActionButton;
 import com.google.android.material.snackbar.Snackbar;
 
+import androidx.annotation.RequiresApi;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.appcompat.widget.Toolbar;
 
@@ -36,12 +45,39 @@ public class LandingPageActivity extends AppCompatActivity {
     public static final String LANDING_EXTRA_MESSAGE = "com.ford.cpp.android.landing.MESSAGE";
     TextView view;
 
+    @TargetApi(Build.VERSION_CODES.M)
+    @RequiresApi(api = Build.VERSION_CODES.M)
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_landing_page);
         Toolbar toolbar = findViewById(R.id.toolbar);
         setSupportActionBar(toolbar);
+
+        FusedLocationProviderClient fusedLocationClient = LocationServices.getFusedLocationProviderClient(this);
+        ;
+        if (checkSelfPermission(Manifest.permission.ACCESS_FINE_LOCATION) != PackageManager.PERMISSION_GRANTED && checkSelfPermission(Manifest.permission.ACCESS_COARSE_LOCATION) != PackageManager.PERMISSION_GRANTED) {
+            // TODO: Consider calling
+            //    Activity#requestPermissions
+            // here to request the missing permissions, and then overriding
+            //   public void onRequestPermissionsResult(int requestCode, String[] permissions,
+            //                                          int[] grantResults)
+            // to handle the case where the user grants the permission. See the documentation
+            // for Activity#requestPermissions for more details.
+            return;
+        }
+        fusedLocationClient.getLastLocation()
+                .addOnSuccessListener(this, new OnSuccessListener<Location>() {
+                    @Override
+                    public void onSuccess(Location location) {
+                        // Got last known location. In some rare situations this can be null.
+                        if (location != null) {
+                            // Logic to handle location object
+
+                            System.out.println("--------------------    LAT :"+location.getLatitude()+" LONG: "+location.getLongitude());
+                        }
+                    }
+                });
 
     }
 
@@ -59,9 +95,10 @@ public class LandingPageActivity extends AppCompatActivity {
 
 
         RequestQueue queue = Volley.newRequestQueue(this);
-        //  String url ="http://19.49.54.78:8090/station";
+          String url ="http://19.49.55.88:8090/station"+"/"+value;;
         // String url= "https://findmycharger.cfapps.io/station";
-        String url ="http://192.168.225.53:8090/station"+"/"+value;
+       // String url ="http://19.49.54.132:8090/station"+"/"+value;
+      //  String url = "http://findmycharger.apps.pcf.paltraining.perficient.com/station"+"/"+value;
 
 // Request a string response from the provided URL.
         JsonArrayRequest stringRequest = new JsonArrayRequest(Request.Method.GET, url,
@@ -80,14 +117,18 @@ public class LandingPageActivity extends AppCompatActivity {
                             for (int i = 0; i < response.length(); i++) {
                                 JSONObject json = response.getJSONObject(i);
                                 ChargingStationContract station = new ChargingStationContract();
-                                station.setId(json.getLong("id"));
-                                station.setName(json.getString("name"));
 
+                                station.setId(json.getLong("chargerId"));
+                                station.setName(json.getString("name"));
                                 station.setLatitude(json.getDouble("latitude"));
                                 station.setLongitude(json.getDouble("longitude"));
                                 station.setStatus(json.getBoolean("status"));
                                 station.setUsageCounter(json.getLong("usageCounter"));
-                                list.add(station);
+                                station.setChargePct(json.getDouble("chargePct"));
+                                station.setCity(json.getString("city"));
+                                station.setVin(json.getString("vin"));
+
+                               list.add(station);
 
                             }
                             contractList.setStationList(list);
