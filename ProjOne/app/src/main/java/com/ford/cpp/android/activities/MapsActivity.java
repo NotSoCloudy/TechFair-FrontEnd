@@ -58,19 +58,12 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
     @Override
     public void onMapReady(GoogleMap googleMap) {
         mMap = googleMap;
-     //   TextView view = new TextView();
+        List<Marker> markerList = new ArrayList<Marker>();
 
         List<MarkerOptions> options = new ArrayList<>();
         Intent intent = getIntent();
-     //   ChargingStationList list  = (ChargingStationList)intent.getSerializableExtra(MainActivity.EXTRA_MESSAGE);
-
         ChargingStationList list  = (ChargingStationList)intent.getSerializableExtra(LandingPageActivity.LANDING_EXTRA_MESSAGE);
 
-
-        String name = list.getStationList().get(0).getName();
-        // Add a marker in Sydney and move the camera
-      //  LatLng dearborn = new LatLng()
-       // LatLng taylor = new LatLng(42.2409, 83.2697);
         List<ChargingStationContract> innerList = list.getStationList();
         float color = 0;
         List<WeightedLatLng> weightedList = new ArrayList<>();
@@ -86,91 +79,69 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
             if(contract.isStatus())
             {
                 color = BitmapDescriptorFactory.HUE_GREEN;
-                snippetText="Charger is available";
-
+                snippetText="Available";
             }
             else
             {
-                color = BitmapDescriptorFactory.HUE_RED;
-                snippetText="Charger is in Use";
+                if(contract.getChargePct()>50)
+                color = BitmapDescriptorFactory.HUE_ORANGE;
+                else
+                    color = BitmapDescriptorFactory.HUE_RED;
+
+                snippetText="In Use\nCharge Percentage: "+contract.getChargePct()+"\nTime to complete(min):"+contract.getTimeToFullyCharge();
             }
             weightedList.add(new WeightedLatLng(new LatLng(contract.getLatitude(),contract.getLongitude()),(contract.getUsageCounter()+1)*5));
             option.icon(BitmapDescriptorFactory.defaultMarker(color));
-            mMap.addMarker(option);
             option.snippet(snippetText);
             options.add(option);
-            mMap.setInfoWindowAdapter(new GoogleMap.InfoWindowAdapter() {
-                @Override
-                public View getInfoWindow(Marker arg0) {
-                    return null;
-                }
-                @Override
-                public View getInfoContents(Marker marker) {
-                    Context context = getApplicationContext(); //or getActivity(), YourActivity.this, etc.
-                    LinearLayout info = new LinearLayout(context);
-                    info.setOrientation(LinearLayout.VERTICAL);
-                    TextView title = new TextView(context);
-                    title.setTextColor(Color.BLACK);
-                    title.setGravity(Gravity.CENTER);
-                    title.setTypeface(null, Typeface.BOLD);
-                    title.setText(marker.getTitle());
-                    TextView snippet = new TextView(context);
-                    snippet.setTextColor(Color.GRAY);
-                    snippet.setText(marker.getSnippet());
-                    info.addView(title);
-                    info.addView(snippet);
-                    return info;
-                }
-            });
+            markerList.add(mMap.addMarker(option));
 
         }
-       // LatLng allenpark = new LatLng(42.267780,  -83.242570);
 
-       // mMap.addMarker(new MarkerOptions().position(dearborn).title("Dearborn"));
-       // mMap.addMarker(new MarkerOptions().position(taylor).title("Taylor"));
-      //  mMap.addMarker(new MarkerOptions().position(allenpark).title("Allen Park"));
-    //    mMap.setMaxZoomPreference(20);
-
-
-//        mMap.addMarker(new MarkerOptions()
-//                .position(allenpark)
-//                .title(name)
-//                .snippet("Charging Station is currently in use. \r \n Percent Charged: 45% \r \n Time Remaining: 30 min ")
-//        .icon(BitmapDescriptorFactory.defaultMarker(color)));
         addHeatMap(weightedList);
       CameraPosition cameraPosition = new CameraPosition.Builder()
                 .target(options.get(0).getPosition())
                .zoom(12).build();
-//        //Zoom in and animate the camera.
         mMap.animateCamera(CameraUpdateFactory.newCameraPosition(cameraPosition));
 
+        mMap.setInfoWindowAdapter(new GoogleMap.InfoWindowAdapter() {
+            @Override
+            public View getInfoWindow(Marker arg0) {
+                return null;
+            }
+            @Override
+            public View getInfoContents(Marker marker) {
+                Context context = getApplicationContext(); //or getActivity(), YourActivity.this, etc.
+                LinearLayout info = new LinearLayout(context);
+                info.setOrientation(LinearLayout.VERTICAL);
+                TextView title = new TextView(context);
+                title.setTextColor(Color.BLACK);
+                title.setGravity(Gravity.CENTER);
+                title.setTypeface(null, Typeface.BOLD);
+                title.setText(marker.getTitle());
+                TextView snippet = new TextView(context);
+                snippet.setTextColor(Color.GRAY);
+                //   snippet.setText(marker.getSnippet());
+                snippet.setText(marker.getSnippet());
+                info.addView(title);
+                info.addView(snippet);
+                return info;
+            }
+        });
 
-       //mMap.moveCamera(CameraUpdateFactory.newLatLng(allenpark));
-
+        for(Marker marker:markerList)
+        {
+            marker.showInfoWindow();
+        }
     }
 
     private void addHeatMap(List<WeightedLatLng> list) {
 
-
-        // Create a heat map tile provider, passing it the latlngs of the police stations.
         HeatmapTileProvider mProvider = new HeatmapTileProvider.Builder()
                 .weightedData(list)
                 .radius(38)
                 .opacity(0.9)
                 .build();
-        //  mMap.
-        // Add a tile overlay to the map, using the heat map tile provider.
-//        Log.d("HEATMAP --->>>>  ",""+list.get(0).getPoint().x+"==="+list.get(0).getPoint().y);
-//        // Log.out.println(" LAT LONG FOR ZOOM ----->>>>>   :"+list.get(0).getPoint().x,list.get(0).getPoint().y);
-//        CameraPosition cameraPosition = new CameraPosition.Builder()
-//                .target(new LatLng(contractList.get(0).getLatitude(),contractList.get(0).getLongitude()))
-//                .zoom(12)
-//                .build();
-//////        //Zoom in and animate the camera.
-//        mMap.animateCamera(CameraUpdateFactory.newCameraPosition(cameraPosition));
-
-        //  mMap.moveCamera(CameraUpdateFactory.newCameraPosition(cameraPosition));
-
-        mMap.addTileOverlay(new TileOverlayOptions().tileProvider(mProvider));
+           mMap.addTileOverlay(new TileOverlayOptions().tileProvider(mProvider));
     }
 }

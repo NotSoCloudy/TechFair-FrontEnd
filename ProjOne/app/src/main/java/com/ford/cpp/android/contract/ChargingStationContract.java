@@ -13,6 +13,7 @@ public class ChargingStationContract implements Serializable{
     private String city;
     private String vin;
     private double chargePct;
+    private double timeToFullyCharge;
 
     public long getUsageCounter() {
         return usageCounter;
@@ -74,4 +75,12 @@ public class ChargingStationContract implements Serializable{
     public double getChargePct() {   return chargePct;  }
 
     public void setChargePct(double chargePct) {  this.chargePct = chargePct;  }
+
+    public double getTimeToFullyCharge() {
+        return timeToFullyCharge;
+    }
+
+    public void setTimeToFullyCharge(double timeToFullyCharge) {
+        this.timeToFullyCharge = timeToFullyCharge;
+    }
 }

@@ -95,8 +95,8 @@ public class LandingPageActivity extends AppCompatActivity {
 
 
         RequestQueue queue = Volley.newRequestQueue(this);
-          String url ="http://19.49.55.88:8090/station"+"/"+value;;
-        // String url= "https://findmycharger.cfapps.io/station";
+      //    String url ="http://19.49.55.88:8090/station"+"/"+value;;
+            String url= "http://findmycharger.apps.pcf.paltraining.perficient.com/station/"+ value;
        // String url ="http://19.49.54.132:8090/station"+"/"+value;
       //  String url = "http://findmycharger.apps.pcf.paltraining.perficient.com/station"+"/"+value;
 
@@ -127,6 +127,7 @@ public class LandingPageActivity extends AppCompatActivity {
                                 station.setChargePct(json.getDouble("chargePct"));
                                 station.setCity(json.getString("city"));
                                 station.setVin(json.getString("vin"));
+                                station.setTimeToFullyCharge(json.getDouble("timeToFullyCharge"));
 
                                list.add(station);
 
@@ -154,13 +155,4 @@ public class LandingPageActivity extends AppCompatActivity {
 
         queue.add(stringRequest);
     }
-
-    protected LocationRequest createLocationRequest() {
-        LocationRequest locationRequest = LocationRequest.create();
-        locationRequest.setInterval(10000);
-        locationRequest.setFastestInterval(5000);
-        locationRequest.setPriority(LocationRequest.PRIORITY_HIGH_ACCURACY);
-        return locationRequest;
-    }
-
 }
