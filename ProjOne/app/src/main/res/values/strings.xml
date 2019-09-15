@@ -12,15 +12,11 @@
     <string name="find_ev_charger">Find EV Charger</string>
     <string name="no_charger_error">No Chargers found.Try a different search</string>
 
-
-
-
     <string-array name="radius_values">
         <item>Taylor</item>
         <item>Dearborn</item>
         <item>All</item>
     </string-array>
-
     <string-array name="distance_values">
         <item>1 mile</item>
         <item>5 miles</item>

@@ -29,8 +29,11 @@ import androidx.appcompat.app.AppCompatActivity;
 import androidx.appcompat.widget.Toolbar;
 
 import android.view.View;
+import android.widget.AdapterView;
+import android.widget.ArrayAdapter;
 import android.widget.Spinner;
 import android.widget.TextView;
+import android.widget.Toast;
 
 import com.example.projone.R;
 
@@ -40,20 +43,35 @@ import org.json.JSONObject;
 import java.util.ArrayList;
 import java.util.List;
 
-public class LandingPageActivity extends AppCompatActivity {
+public class LandingPageActivity extends AppCompatActivity implements
+        AdapterView.OnItemSelectedListener {
 
     public static final String LANDING_EXTRA_MESSAGE = "com.ford.cpp.android.landing.MESSAGE";
     TextView view;
+    Spinner searchOption;
+    Spinner searchCriteriaValues;
+    double selfLatitude=0;
+    double selfLongitude=0;
+    boolean boolDistanceSelected;
 
     @TargetApi(Build.VERSION_CODES.M)
     @RequiresApi(api = Build.VERSION_CODES.M)
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
+        boolDistanceSelected=false;
+
         setContentView(R.layout.activity_landing_page);
         Toolbar toolbar = findViewById(R.id.toolbar);
         setSupportActionBar(toolbar);
 
+        searchOption = findViewById(R.id.search_option_id);
+        searchCriteriaValues = findViewById(R.id.city_list_id);
+        if(findViewById(R.id.no_charger_error).getVisibility()==View.VISIBLE)
+            findViewById(R.id.no_charger_error).setVisibility(View.INVISIBLE);
+
+
+        searchOption.setOnItemSelectedListener(this);
         FusedLocationProviderClient fusedLocationClient = LocationServices.getFusedLocationProviderClient(this);
         ;
         if (checkSelfPermission(Manifest.permission.ACCESS_FINE_LOCATION) != PackageManager.PERMISSION_GRANTED && checkSelfPermission(Manifest.permission.ACCESS_COARSE_LOCATION) != PackageManager.PERMISSION_GRANTED) {
@@ -73,6 +91,8 @@ public class LandingPageActivity extends AppCompatActivity {
                         // Got last known location. In some rare situations this can be null.
                         if (location != null) {
                             // Logic to handle location object
+                            selfLatitude=location.getLatitude();
+                            selfLongitude=location.getLongitude();
 
                             System.out.println("--------------------    LAT :"+location.getLatitude()+" LONG: "+location.getLongitude());
                         }
@@ -92,6 +112,14 @@ public class LandingPageActivity extends AppCompatActivity {
         Spinner spinner = findViewById(R.id.city_list_id);
         String value = (String) spinner.getSelectedItem();
 
+        Spinner spinnerSearchOptions = findViewById(R.id.search_option_id);
+        String valueSearchOptions = (String) spinnerSearchOptions.getSelectedItem();
+
+        if(valueSearchOptions.equalsIgnoreCase("distance"))
+        {
+            value="All";
+            boolDistanceSelected=true;
+        }
 
 
         RequestQueue queue = Volley.newRequestQueue(this);
@@ -154,5 +182,28 @@ public class LandingPageActivity extends AppCompatActivity {
         });
 
         queue.add(stringRequest);
+    }
+
+    @Override
+    public void onItemSelected(AdapterView<?> adapterView, View view, int i, long l) {
+        String sp1= String.valueOf(searchOption.getSelectedItem());
+        Toast.makeText(this, sp1, Toast.LENGTH_SHORT).show();
+        String[] array=null;
+        if(sp1.contentEquals("City"))
+            array = getResources().getStringArray(R.array.radius_values);
+        else
+            array = getResources().getStringArray(R.array.distance_values);
+
+            ArrayAdapter<String> dataAdapter = new ArrayAdapter<>(this,
+                    android.R.layout.simple_spinner_item,array);
+
+            dataAdapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item);
+            dataAdapter.notifyDataSetChanged();
+            searchCriteriaValues.setAdapter(dataAdapter);
+        }
+
+    @Override
+    public void onNothingSelected(AdapterView<?> adapterView) {
+
     }
 }
