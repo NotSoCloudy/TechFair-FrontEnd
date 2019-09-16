@@ -18,8 +18,6 @@
         android:contentDescription="@string/find_ev_charger"
         android:text="@string/find_ev_charger"
         android:textAlignment="center"
-        android:textAppearance="@style/TextAppearance.AppCompat.Large"
-        android:textColor="@color/design_default_color_primary"
         android:textFontWeight="2"
         android:textSize="30sp"
         android:textStyle="bold"
@@ -51,7 +49,7 @@
         android:contentDescription="@string/ev_image_description"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintTop_toTopOf="parent"
-        app:srcCompat="@drawable/pic_ev_car" />
+        app:srcCompat="@drawable/pic_ev" />
 
     <LinearLayout
         android:id="@+id/linearLayout"
@@ -100,13 +98,12 @@
     <ImageButton
 
         android:id="@+id/button"
-        android:layout_width="117dp"
-        android:layout_height="50dp"
-        android:layout_marginStart="144dp"
+        android:layout_width="175dp"
+        android:layout_height="45dp"
+        android:layout_marginStart="108dp"
         android:layout_marginTop="32dp"
         android:background="@drawable/find_button_selectorfile"
         android:onClick="sendMessage"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toBottomOf="@+id/linearLayout" />
-
 </androidx.constraintlayout.widget.ConstraintLayout>
