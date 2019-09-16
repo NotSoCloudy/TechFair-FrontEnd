@@ -2,6 +2,9 @@ package com.ford.cpp.android.activities;
 
 import android.Manifest;
 import android.annotation.TargetApi;
+import android.app.Activity;
+import android.app.AlertDialog;
+import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.pm.PackageManager;
 import android.location.Location;
@@ -56,7 +59,7 @@ public class LandingPageActivity extends AppCompatActivity implements
     double selfLongitude=0;
     boolean boolDistanceSelected;
     long mileRadius=0;
-
+    private Activity thisActivity;
 
     @TargetApi(Build.VERSION_CODES.M)
     @RequiresApi(api = Build.VERSION_CODES.M)
@@ -74,7 +77,7 @@ public class LandingPageActivity extends AppCompatActivity implements
         if(findViewById(R.id.no_charger_error).getVisibility()==View.VISIBLE)
             findViewById(R.id.no_charger_error).setVisibility(View.INVISIBLE);
 
-
+        thisActivity = this;
         searchOption.setOnItemSelectedListener(this);
         FusedLocationProviderClient fusedLocationClient = LocationServices.getFusedLocationProviderClient(this);
         ;
@@ -181,7 +184,8 @@ public class LandingPageActivity extends AppCompatActivity implements
                             }
                            // if(list!=null)
                             if(list.size()==0) {
-                                findViewById(R.id.no_charger_error).setVisibility(View.VISIBLE);
+                                createNoSearchDialog();
+                                //findViewById(R.id.no_charger_error).setVisibility(View.VISIBLE);
                                 return;
                             }
 
@@ -251,5 +255,32 @@ public class LandingPageActivity extends AppCompatActivity implements
         if(findViewById(R.id.no_charger_error).getVisibility()==View.VISIBLE)
             findViewById(R.id.no_charger_error).setVisibility(View.INVISIBLE);
 
+    }
+
+    private void createNoSearchDialog()
+    {
+        AlertDialog.Builder builder = new AlertDialog.Builder(thisActivity);
+        builder.setMessage(R.string.dialog_message)
+                .setTitle(R.string.dialog_title);
+        builder.setPositiveButton(R.string.ok, new DialogInterface.OnClickListener() {
+            public void onClick(DialogInterface dialog, int id) {
+                // User clicked OK button
+            }
+        });
+////        builder.setNegativeButton(R.string.cancel, new DialogInterface.OnClickListener() {
+////            public void onClick(DialogInterface dialog, int id) {
+////                // User cancelled the dialog
+////            }
+//        });
+// Set other dialog properties
+
+// Create the AlertDialog
+        AlertDialog dialog = builder.create();
+        dialog.show();
+    }
+
+    private Activity getActivity()
+    {
+        return this;
     }
 }
