@@ -43,6 +43,8 @@ import org.json.JSONObject;
 import java.util.ArrayList;
 import java.util.List;
 
+import static android.location.Location.distanceBetween;
+
 public class LandingPageActivity extends AppCompatActivity implements
         AdapterView.OnItemSelectedListener {
 
@@ -53,6 +55,8 @@ public class LandingPageActivity extends AppCompatActivity implements
     double selfLatitude=0;
     double selfLongitude=0;
     boolean boolDistanceSelected;
+    long mileRadius=0;
+
 
     @TargetApi(Build.VERSION_CODES.M)
     @RequiresApi(api = Build.VERSION_CODES.M)
@@ -111,12 +115,15 @@ public class LandingPageActivity extends AppCompatActivity implements
         final Intent intent = new Intent(this, MapsActivity.class);
         Spinner spinner = findViewById(R.id.city_list_id);
         String value = (String) spinner.getSelectedItem();
-
         Spinner spinnerSearchOptions = findViewById(R.id.search_option_id);
         String valueSearchOptions = (String) spinnerSearchOptions.getSelectedItem();
 
         if(valueSearchOptions.equalsIgnoreCase("distance"))
         {
+            if(!value.equalsIgnoreCase("all"))
+            mileRadius=Long.valueOf(value);
+            else
+                mileRadius=-100;
             value="All";
             boolDistanceSelected=true;
         }
@@ -147,22 +154,38 @@ public class LandingPageActivity extends AppCompatActivity implements
                         try {
                             for (int i = 0; i < response.length(); i++) {
                                 JSONObject json = response.getJSONObject(i);
-                                ChargingStationContract station = new ChargingStationContract();
+                                ChargingStationContract station = null;
+                                new ChargingStationContract();
+                                tempLat=json.getDouble("latitude");
+                                tempLong=json.getDouble("longitude");
 
-                                station.setId(json.getLong("chargerId"));
-                                station.setName(json.getString("name"));
-                                station.setLatitude(json.getDouble("latitude"));
-                                station.setLongitude(json.getDouble("longitude"));
-                                station.setStatus(json.getBoolean("status"));
-                                station.setUsageCounter(json.getLong("usageCounter"));
-                                station.setChargePct(json.getDouble("chargePct"));
-                                station.setCity(json.getString("city"));
-                                station.setVin(json.getString("vin"));
-                                station.setTimeToFullyCharge(json.getDouble("timeToFullyCharge"));
+                                if(boolDistanceSelected && !includeInResult(tempLat,tempLong,mileRadius))
+                                continue;
+                                else
+                                {
+                                    station = new ChargingStationContract();
+                                    station.setId(json.getLong("chargerId"));
+                                    station.setName(json.getString("name"));
+                                    station.setLatitude(tempLat);
+                                    station.setLongitude(tempLong);
+                                    station.setStatus(json.getBoolean("status"));
+                                    station.setUsageCounter(json.getLong("usageCounter"));
+                                    station.setChargePct(json.getDouble("chargePct"));
+                                    station.setCity(json.getString("city"));
+                                    station.setVin(json.getString("vin"));
+                                    station.setTimeToFullyCharge(json.getDouble("timeToFullyCharge"));
 
-                               list.add(station);
+                                    list.add(station);
+                                }
 
                             }
+                           // if(list!=null)
+                            if(list.size()==0) {
+                                findViewById(R.id.no_charger_error).setVisibility(View.VISIBLE);
+                                return;
+                            }
+
+
                             contractList.setStationList(list);
                         }
                         catch(Exception e)
@@ -207,6 +230,26 @@ public class LandingPageActivity extends AppCompatActivity implements
 
     @Override
     public void onNothingSelected(AdapterView<?> adapterView) {
+
+    }
+
+    private boolean includeInResult(double latitude,double longitude,long mileRadius)
+    {
+        if(mileRadius==-100)
+            return true;
+        System.out.println("called include in result");
+        float[] results = new float[1];
+        distanceBetween(selfLatitude, selfLongitude, latitude, longitude, results);
+        if(results[0]*0.000621371<=mileRadius)
+        return true;
+        else return false;
+    }
+
+    @Override
+    public void onResume(){
+        super.onResume();
+        if(findViewById(R.id.no_charger_error).getVisibility()==View.VISIBLE)
+            findViewById(R.id.no_charger_error).setVisibility(View.INVISIBLE);
 
     }
 }
