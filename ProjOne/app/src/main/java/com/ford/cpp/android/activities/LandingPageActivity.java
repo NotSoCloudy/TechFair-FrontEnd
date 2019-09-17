@@ -4,10 +4,14 @@ import android.Manifest;
 import android.annotation.TargetApi;
 import android.app.Activity;
 import android.app.AlertDialog;
+import android.content.Context;
 import android.content.DialogInterface;
 import android.content.Intent;
+import android.content.IntentSender;
 import android.content.pm.PackageManager;
 import android.location.Location;
+import android.location.LocationListener;
+import android.location.LocationManager;
 import android.opengl.Visibility;
 import android.os.Build;
 import android.os.Bundle;
@@ -20,17 +24,29 @@ import com.android.volley.toolbox.JsonArrayRequest;
 import com.android.volley.toolbox.Volley;
 import com.ford.cpp.android.contract.ChargingStationContract;
 import com.ford.cpp.android.contract.ChargingStationList;
+import com.google.android.gms.common.api.ResolvableApiException;
 import com.google.android.gms.location.FusedLocationProviderClient;
+import com.google.android.gms.location.LocationCallback;
 import com.google.android.gms.location.LocationRequest;
+import com.google.android.gms.location.LocationResult;
 import com.google.android.gms.location.LocationServices;
+import com.google.android.gms.location.LocationSettingsRequest;
+import com.google.android.gms.location.LocationSettingsResponse;
+import com.google.android.gms.location.SettingsClient;
+import com.google.android.gms.tasks.OnFailureListener;
 import com.google.android.gms.tasks.OnSuccessListener;
+import com.google.android.gms.tasks.Task;
 import com.google.android.material.floatingactionbutton.FloatingActionButton;
 import com.google.android.material.snackbar.Snackbar;
 
+import androidx.annotation.NonNull;
 import androidx.annotation.RequiresApi;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.appcompat.widget.Toolbar;
+import androidx.core.app.ActivityCompat;
+import androidx.core.content.ContextCompat;
 
+import android.os.Looper;
 import android.view.View;
 import android.widget.AdapterView;
 import android.widget.ArrayAdapter;
@@ -43,7 +59,9 @@ import com.example.projone.R;
 import org.json.JSONArray;
 import org.json.JSONObject;
 
+import java.security.Permission;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
 
 import static android.location.Location.distanceBetween;
@@ -52,17 +70,23 @@ public class LandingPageActivity extends AppCompatActivity implements
         AdapterView.OnItemSelectedListener {
 
     public static final String LANDING_EXTRA_MESSAGE = "com.ford.cpp.android.landing.MESSAGE";
-    TextView view;
+    /**
+     * permissions request code
+     */
+    private LocationManager locationManager;
+    private Location onlyOneLocation;
+    static public final int REQUEST_LOCATION = 1000;
     Spinner searchOption;
     Spinner searchCriteriaValues;
-    double selfLatitude=0;
-    double selfLongitude=0;
+    double selfLatitude=42.267780;
+    double selfLongitude=-83.242569;
     boolean boolDistanceSelected;
     long mileRadius=0;
     private Activity thisActivity;
 
     @TargetApi(Build.VERSION_CODES.M)
     @RequiresApi(api = Build.VERSION_CODES.M)
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -74,47 +98,19 @@ public class LandingPageActivity extends AppCompatActivity implements
 
         searchOption = findViewById(R.id.search_option_id);
         searchCriteriaValues = findViewById(R.id.city_list_id);
-        if(findViewById(R.id.no_charger_error).getVisibility()==View.VISIBLE)
-            findViewById(R.id.no_charger_error).setVisibility(View.INVISIBLE);
 
         thisActivity = this;
         searchOption.setOnItemSelectedListener(this);
-        FusedLocationProviderClient fusedLocationClient = LocationServices.getFusedLocationProviderClient(this);
-        ;
-        if (checkSelfPermission(Manifest.permission.ACCESS_FINE_LOCATION) != PackageManager.PERMISSION_GRANTED && checkSelfPermission(Manifest.permission.ACCESS_COARSE_LOCATION) != PackageManager.PERMISSION_GRANTED) {
-            // TODO: Consider calling
-            //    Activity#requestPermissions
-            // here to request the missing permissions, and then overriding
-            //   public void onRequestPermissionsResult(int requestCode, String[] permissions,
-            //                                          int[] grantResults)
-            // to handle the case where the user grants the permission. See the documentation
-            // for Activity#requestPermissions for more details.
-            return;
-        }
-        fusedLocationClient.getLastLocation()
-                .addOnSuccessListener(this, new OnSuccessListener<Location>() {
-                    @Override
-                    public void onSuccess(Location location) {
-                        // Got last known location. In some rare situations this can be null.
-                        if (location != null) {
-                            // Logic to handle location object
-                            selfLatitude=location.getLatitude();
-                            selfLongitude=location.getLongitude();
 
-                            System.out.println("--------------------    LAT :"+location.getLatitude()+" LONG: "+location.getLongitude());
-                        }
-                    }
-                });
-
+        checkLocation();
     }
 
     public void sendMessage(View view) {
-
-
         sendLocationIntentMessage();
     }
 
     public void sendLocationIntentMessage() {
+
         final Intent intent = new Intent(this, MapsActivity.class);
         Spinner spinner = findViewById(R.id.city_list_id);
         String value = (String) spinner.getSelectedItem();
@@ -133,12 +129,8 @@ public class LandingPageActivity extends AppCompatActivity implements
 
 
         RequestQueue queue = Volley.newRequestQueue(this);
-      //    String url ="http://19.49.55.88:8090/station"+"/"+value;;
             String url= "http://findmycharger.apps.pcf.paltraining.perficient.com/station/"+ value;
-       // String url ="http://19.49.54.132:8090/station"+"/"+value;
-      //  String url = "http://findmycharger.apps.pcf.paltraining.perficient.com/station"+"/"+value;
 
-// Request a string response from the provided URL.
         JsonArrayRequest stringRequest = new JsonArrayRequest(Request.Method.GET, url,
                 new Response.Listener<JSONArray>() {
                     @Override
@@ -148,7 +140,7 @@ public class LandingPageActivity extends AppCompatActivity implements
                         double tempLong=0;
                         if(response== null || response.length()==0)
                         {
-                            findViewById(R.id.no_charger_error).setVisibility(View.VISIBLE);
+                            createNoSearchDialog();
                             return;
                         }
                         ChargingStationList contractList = new ChargingStationList();
@@ -204,10 +196,7 @@ public class LandingPageActivity extends AppCompatActivity implements
                 }, new Response.ErrorListener() {
             @Override
             public void onErrorResponse(VolleyError error) {
-                //editText.setText(error.getMessage());
-                //  TextView view = new TextView()
-                findViewById(R.id.no_charger_error).setVisibility(View.VISIBLE);
-
+                createNoSearchDialog();
             }
         });
 
@@ -221,9 +210,11 @@ public class LandingPageActivity extends AppCompatActivity implements
         String[] array=null;
         if(sp1.contentEquals("City"))
             array = getResources().getStringArray(R.array.radius_values);
-        else
+        else {
+            checkLocation();
             array = getResources().getStringArray(R.array.distance_values);
 
+        }
             ArrayAdapter<String> dataAdapter = new ArrayAdapter<>(this,
                     android.R.layout.simple_spinner_item,array);
 
@@ -267,20 +258,35 @@ public class LandingPageActivity extends AppCompatActivity implements
                 // User clicked OK button
             }
         });
-////        builder.setNegativeButton(R.string.cancel, new DialogInterface.OnClickListener() {
-////            public void onClick(DialogInterface dialog, int id) {
-////                // User cancelled the dialog
-////            }
-//        });
-// Set other dialog properties
 
-// Create the AlertDialog
         AlertDialog dialog = builder.create();
         dialog.show();
     }
 
-    private Activity getActivity()
+
+    public void checkLocation()
     {
-        return this;
+        if (ActivityCompat.checkSelfPermission(this, Manifest.permission.ACCESS_FINE_LOCATION)!= PackageManager.PERMISSION_GRANTED)
+        {
+         ActivityCompat.requestPermissions(this,new String[]{Manifest.permission.ACCESS_FINE_LOCATION},REQUEST_LOCATION);
+
+    }   else
+        {
+       return;
+        }
+    }
+
+    @RequiresApi(api = Build.VERSION_CODES.M)
+    @Override
+    public void onRequestPermissionsResult(int requestCode, String permissions[], int[] grantResults) {
+        switch (requestCode) {
+            case REQUEST_LOCATION:
+                if (grantResults.length > 0 && grantResults[0] == PackageManager.PERMISSION_GRANTED) {
+                    // do nothing for now
+                } else {
+                    searchOption.setSelection(0);
+                }
+                break;
+        }
     }
 }

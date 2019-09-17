@@ -129,10 +129,10 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
             }
         });
 
-        for(Marker marker:markerList)
-        {
-            marker.showInfoWindow();
-        }
+//        for(Marker marker:markerList)
+//        {
+//            marker.showInfoWindow();
+//        }
     }
 
     private void addHeatMap(List<WeightedLatLng> list) {
